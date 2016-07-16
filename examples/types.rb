@@ -1,4 +1,6 @@
-require_relative 'types'
+require_relative '../lib/algeruby'
+
+include Algeruby::ADT
 
 ChargeStatus = Enum["submitted", "pending", "paid", "rejected"]
 Currency = Alias[String]
@@ -22,5 +24,7 @@ Error = Record[
 APIResponse = Charge | Error
 
 [ChargeStatus, Currency, ChargeAmount, Charge, Error, APIResponse].each do |t|
-  puts "Invalid! #{t}" unless t.valid?
+  raise "Invalid! #{t}" unless t.valid?
 end
+
+puts "Ok."
