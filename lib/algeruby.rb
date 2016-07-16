@@ -3,3 +3,4 @@ module Algeruby
 end
 
 require_relative 'algeruby/adt'
+require_relative 'algeruby/serde'

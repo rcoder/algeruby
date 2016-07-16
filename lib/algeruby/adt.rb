@@ -12,7 +12,7 @@ module Algeruby::ADT
 
     def self.[](*args)
       inst = new(*args)
-      raise ArgumentError.new("invalid type constructor") unless inst.valid?
+      raise ArgumentError.new("invalid type params (#{args}) for type #{inst}") unless inst.valid?
       inst
     end
 
@@ -52,6 +52,9 @@ module Algeruby::ADT
       value.is_a?(@type)
     end
   end
+
+  # Syntax helper for using built-in Integer, Float, and String types
+  T = Alias
 
   class Union < TypeDescriptor
     attr_reader :types
@@ -105,7 +108,7 @@ module Algeruby::ADT
     attr_reader :fields
 
     def initialize(**fields)
-      @fields = fields.freeze
+      @fields = fields.inject({}) {|h,p| h[p[0].to_s] = p[1]; h}.freeze
     end
 
     def valid?
