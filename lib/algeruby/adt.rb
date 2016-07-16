@@ -1,5 +1,11 @@
 module Algeruby::ADT
-  class TypeConstructor
+  PRIMITIVE_TYPES = [
+    Integer,
+    Float,
+    String
+  ]
+
+  class TypeDescriptor
     def initialize
       raise RuntimeError.new("cannot instantiate base constructor class")
     end
@@ -10,16 +16,30 @@ module Algeruby::ADT
       inst
     end
 
-    def is_type?(obj)
-      obj.is_a?(Class) | obj.is_a?(TypeConstructor)
-    end
-
     def |(other)
       Union[self, other]
     end
   end
 
-  class Alias < TypeConstructor
+  def self.valid_type?(obj)
+    obj.is_a?(TypeDescriptor) | (obj.is_a?(Class) && PRIMITIVE_TYPES.include?(obj))
+  end
+
+  class None < TypeDescriptor
+    def initialize; end
+
+    def valid?
+      true
+    end
+
+    def include?(value)
+      value.nil?
+    end
+  end
+
+  class Alias < TypeDescriptor
+    attr_reader :type
+
     def initialize(type)
       @type = type
     end
@@ -33,13 +53,15 @@ module Algeruby::ADT
     end
   end
 
-  class Union < TypeConstructor
+  class Union < TypeDescriptor
+    attr_reader :types
+
     def initialize(*types)
-      @types = types
+      @types = types.freeze
     end
 
     def valid?
-      @types.all? {|t| is_type?(t)}
+      @types.all? {|t| Algeruby::ADT.valid_type?(t)}
     end
 
     def include?(value)
@@ -47,9 +69,11 @@ module Algeruby::ADT
     end
   end
 
-  class Enum < TypeConstructor
+  class Enum < TypeDescriptor
+    attr_reader :values
+
     def initialize(*values)
-      @values = values
+      @values = values.freeze
     end
 
     def valid?
@@ -61,13 +85,15 @@ module Algeruby::ADT
     end
   end
 
-  class Tuple < TypeConstructor
+  class Tuple < TypeDescriptor
+    attr_reader :types
+
     def initialize(*types)
-      @types = types
+      @types = types.freeze
     end
 
     def valid?
-      @types.all? {|t| is_type?(t)}
+      @types.all? {|t| Algeruby::ADT.valid_type?(t)}
     end
 
     def include?(value)
@@ -75,13 +101,15 @@ module Algeruby::ADT
     end
   end
 
-  class Record < TypeConstructor
+  class Record < TypeDescriptor
+    attr_reader :fields
+
     def initialize(**fields)
-      @fields = fields
+      @fields = fields.freeze
     end
 
     def valid?
-      @fields.values.all? {|ft| is_type?(ft)}
+      @fields.values.all? {|ft| Algeruby::ADT.valid_type?(ft)}
     end
 
     def include?(value)
@@ -113,19 +141,17 @@ module Algeruby::ADT
 
       Record.new(**merged_fields)
     end
-
-    protected
-
-    attr_reader :fields
   end
 
-  class List < TypeConstructor
+  class List < TypeDescriptor
+    attr_reader :type
+
     def initialize(type)
       @type = type
     end
 
     def valid?
-      is_type?(@type)
+      Algeruby::ADT.valid_type?(@type)
     end
 
     def include?(value)
@@ -133,14 +159,16 @@ module Algeruby::ADT
     end
   end
 
-  class Map < TypeConstructor
+  class Map < TypeDescriptor
+    attr_reader :key_type, :val_type
+
     def initialize(key_type, val_type)
       @key_type = key_type
       @val_type = val_type
     end
 
     def valid?
-      is_type?(@key_type) && is_type?(@val_type)
+      Algeruby::ADT.valid_type?(@key_type) && Algeruby::ADT.valid_type?(@val_type)
     end
 
     def include?(value)

@@ -4,7 +4,7 @@ include Algeruby::ADT
 
 ChargeStatus = Enum["submitted", "pending", "paid", "rejected"]
 Currency = Alias[String]
-ChargeAmount = Tuple[Fixnum, Currency]
+ChargeAmount = Tuple[Integer, Currency]
 
 MetadataObject = Record[
   data: Map[String, String]
@@ -17,7 +17,7 @@ Charge = Record[
 ] + MetadataObject
 
 Error = Record[
-  code: Fixnum,
+  code: Integer,
   message: String,
 ]
 
