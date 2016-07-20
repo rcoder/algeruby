@@ -25,6 +25,45 @@ module Algeruby::ADT
     obj.is_a?(TypeDescriptor) | (obj.is_a?(Class) && PRIMITIVE_TYPES.include?(obj))
   end
 
+  # This is a top type that matches all values
+  class Anything < TypeDescriptor
+    def initialize; end
+
+    def valid?
+      true
+    end
+
+    def include?(value)
+      true
+    end
+  end
+
+  # This is a top type that matches all values
+  class Bool < TypeDescriptor
+    def initialize; end
+
+    def valid?
+      true
+    end
+
+    def include?(value)
+      value == true || value == false
+    end
+  end
+
+  # This is a bottom type that matches no values
+  class Nothing < TypeDescriptor
+    def initialize; end
+
+    def valid?
+      true
+    end
+
+    def include?(value)
+      false
+    end
+  end
+
   class None < TypeDescriptor
     def initialize; end
 
