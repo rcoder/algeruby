@@ -108,7 +108,7 @@ module Algeruby::ADT
     attr_reader :fields
 
     def initialize(**fields)
-      @fields = fields.inject({}) {|h,p| h[p[0].to_s] = p[1]; h}.freeze
+      @fields = fields.inject({}) {|h,p| h[p[0]] = p[1]; h}.freeze
     end
 
     def valid?
