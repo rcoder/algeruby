@@ -38,7 +38,7 @@ module Algeruby::ADT
     end
   end
 
-  # This is a top type that matches all values
+  # This is a boolean type that matches true or false
   class Bool < TypeDescriptor
     def initialize; end
 
