@@ -161,11 +161,11 @@ module Algeruby::Serde
 
     class TupleConverter < BaseConverter
       def deserialize(value, **kwargs)
-        value = []
+        rvalue = []
         @descriptor.types.each_with_index do |desc, index|
-          value << Algeruby::Serde.deserialize(desc, value[index])
+          rvalue << Algeruby::Serde.deserialize(desc, value[index])
         end
-        value
+        rvalue
       end
     end
 
