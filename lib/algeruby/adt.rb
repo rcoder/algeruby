@@ -25,56 +25,24 @@ module Algeruby::ADT
     obj.is_a?(TypeDescriptor) | (obj.is_a?(Class) && PRIMITIVE_TYPES.include?(obj))
   end
 
-  # This is a top type that matches all values
-  class Anything < TypeDescriptor
-    def initialize; end
+  class Factory < TypeDescriptor
+    def initialize(&block)
+      @fn = block
+    end
 
     def valid?
       true
     end
 
     def include?(value)
-      true
+      @fn.call(value)
     end
   end
 
-  # This is a boolean type that matches true or false
-  class Bool < TypeDescriptor
-    def initialize; end
-
-    def valid?
-      true
-    end
-
-    def include?(value)
-      value == true || value == false
-    end
-  end
-
-  # This is a bottom type that matches no values
-  class Nothing < TypeDescriptor
-    def initialize; end
-
-    def valid?
-      true
-    end
-
-    def include?(value)
-      false
-    end
-  end
-
-  class None < TypeDescriptor
-    def initialize; end
-
-    def valid?
-      true
-    end
-
-    def include?(value)
-      value.nil?
-    end
-  end
+  Anything = Factory.new { |value| true }
+  Bool = Factory.new { |value| value == true || value == false }
+  Nothing = Factory.new { |value| false }
+  None = Factory.new { |value| value.nil? }
 
   class Alias < TypeDescriptor
     attr_reader :type

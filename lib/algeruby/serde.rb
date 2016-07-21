@@ -30,7 +30,8 @@ module Algeruby::Serde
   end
 
   def self.converter_for(descriptor)
-    converter_class = Converter::TYPE_MAP[descriptor.class]
+    converter_class = Converter::TYPE_MAP[descriptor.class] ||
+      Converter::TYPE_MAP[descriptor]
     if converter_class.nil?
       raise DeserializationError.new(
         "No converter known for type #{descriptor.class}",
@@ -60,6 +61,21 @@ module Algeruby::Serde
       end
     end
 
+    class AnythingConverter < BaseConverter
+      def deserialize(value, **kwargs)
+        value
+      end
+    end
+
+    class BoolConverter < BaseConverter
+      def deserialize(value, **kwargs)
+        if (value == true) then true
+        elsif (value == false) then false
+        else raise DeserializationError.new("Can't parse '#{value}' as Bool", @descriptor)
+        end
+      end
+    end
+
     class IntegerConverter < BaseConverter
       def deserialize(value, **kwargs)
         Integer(value)
@@ -73,6 +89,12 @@ module Algeruby::Serde
         Float(value)
       rescue ArgumentError
         raise DeserializationError.new("Can't parse '#{value}' as float", @descriptor)
+      end
+    end
+
+    class NothingConverter < BaseConverter
+      def deserialize(value, **kwargs)
+        raise DeserializationError.new("'#{value}' found where Nothing expected", @descriptor)
       end
     end
 
@@ -209,14 +231,17 @@ module Algeruby::Serde
       Integer => IntegerConverter,
       Float => FloatConverter,
       String => StringConverter,
-      Algeruby::ADT::None => NoneConverter,
       Algeruby::ADT::Alias => AliasConverter,
-      Algeruby::ADT::Union => UnionConverter,
+      Algeruby::ADT::Anything => AnythingConverter,
+      Algeruby::ADT::Bool => BoolConverter,
       Algeruby::ADT::Enum => EnumConverter,
-      Algeruby::ADT::Tuple => TupleConverter,
-      Algeruby::ADT::Record => RecordConverter,
       Algeruby::ADT::List => ListConverter,
       Algeruby::ADT::Map => MapConverter,
+      Algeruby::ADT::None => NoneConverter,
+      Algeruby::ADT::Nothing => NothingConverter,
+      Algeruby::ADT::Record => RecordConverter,
+      Algeruby::ADT::Tuple => TupleConverter,
+      Algeruby::ADT::Union => UnionConverter,
     }
   end
 end
