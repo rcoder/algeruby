@@ -17,6 +17,10 @@ Success = Record[
 
 Result = Error | Success
 
+LaxResult = Error | Success | Anything
+
+TwoBits = Tuple[Bool, Bool]
+
 error_data = {
   "code" => 1,
   "message" => "invalid request"
@@ -39,6 +43,12 @@ Algeruby::Serde.deserialize(Result, error_data)
 print "."
 
 Algeruby::Serde.deserialize(Result, success_data)
+print "."
+
+Algeruby::Serde.deserialize(LaxResult, success_data)
+print "."
+
+Algeruby::Serde.deserialize(TwoBits, [true, false])
 print "."
 
 begin
